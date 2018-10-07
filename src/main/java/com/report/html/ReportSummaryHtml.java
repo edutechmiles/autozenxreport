@@ -56,17 +56,17 @@ public class ReportSummaryHtml {
 				"            </div>\r\n" + 
 				"            <div class=\"col-sm-3\">\r\n" + 
 				"                <div class=\"card text-white bg-info mb-4\">\r\n" + 
-				"                    <div class=\"card-header\">EndTime</div>\r\n" + 
+				"                    <div class=\"card-header\">StartTime</div>\r\n" + 
 				"                    <div class=\"card-body\">\r\n" + 
-				"                        <h5 class=\"card-title\">07.June.2018 11.26.43</h5>\r\n" + 
+				"                        <h5 class=\"card-title\">START_TIME</h5>\r\n" + 
 				"                    </div>\r\n" + 
 				"                </div>\r\n" + 
 				"            </div>\r\n" + 
 				"            <div class=\"col-sm-3\">\r\n" + 
 				"                <div class=\"card text-white bg-info mb-4\">\r\n" + 
-				"                    <div class=\"card-header\">StartTime</div>\r\n" + 
+				"                    <div class=\"card-header\">EndTime</div>\r\n" + 
 				"                    <div class=\"card-body\">\r\n" + 
-				"                        <h5 class=\"card-title\">07.June.2018 11.26.44</h5>\r\n" + 
+				"                        <h5 class=\"card-title\">END_TIME</h5>\r\n" + 
 				"                    </div>\r\n" + 
 				"                </div>\r\n" + 
 				"            </div>\r\n" + 

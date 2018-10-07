@@ -35,17 +35,18 @@ public class ZenXReport
 	ReportStepsDetails objReportStepsDetails;
 	ReportTestStepHeaderHtml objReportTestStepHeaderHtml ;
 	public  String fileName = "";
-	public String stepStartTime;
-	public String stepEndTime;
+	public String executionStartTime;
+	public String executionEndTime;
 	public String testStartTime;
 	public String testEndTime;
 	private FileWriter fstream =null;
 	public String dateTimeFormat = "dd-MMM-yyyy hh:mm:ss" ;
 	public String reportPath ;
 	public static int autoTestId =0;
-	public String testStepHtml ;
+	public String testStepHtml = "" ;
 	public ArrayList<String> totalStepsLst;
 	public ArrayList<String> testCaseLst;
+	public String reportSummartHtml = "";
 	
 	/**  will be use in  @Beforesuite
 	 * Create report 
@@ -87,15 +88,13 @@ public class ZenXReport
 			dateTimeFormat = configurationMap.get("dateTimeFormat");
 		}
 		
-		setTestStartTime(CommonUtility.now(dateTimeFormat));
+		setExecutionStartTime(CommonUtility.now(dateTimeFormat));
 		objSystemProperties = new SystemProperties();
 		objReportStepsDetails = new ReportStepsDetails();
 		objReportTestStepHeaderHtml = new ReportTestStepHeaderHtml();
 		totalStepsLst = new ArrayList<String>();
 		testCaseLst = new ArrayList<String>();
 		createReportHeader(fileName);
-		createReportSummary(fileName);
-		
 		autoTestId++;
 
 	}
@@ -113,10 +112,12 @@ public class ZenXReport
 	 * Create summary of report - will be use in  @Beforesuite
 	 * @param fileName
 	 */
-	public void createReportSummary(String fileName) {
+	public String createReportSummary(String fileName) {
 		ReportSummaryHtml objReportSummaryHtml = new ReportSummaryHtml();
 		String summary = objReportSummaryHtml.reportSummary(configurationMap, objSystemProperties.getSystemInfoMap());
 		writeDataInReport(summary, fileName);
+		
+		return summary;
 	}
 	
 	/**
@@ -125,22 +126,30 @@ public class ZenXReport
 	 */
 	
 	public void startSuit(String suiteName) {
+		setTestStartTime(CommonUtility.now(dateTimeFormat));
+		createReportSummary(fileName);
+		
 		SuiteHeaderHtml objSuiteHeaderHtml = new SuiteHeaderHtml();
-		String summary = objSuiteHeaderHtml.reportHeader(suiteName);
+		String summary = objSuiteHeaderHtml.testCaseSummaryHeader(suiteName);
 		writeDataInReport(summary, getFileName());
 	}
 	
+	/*public void startTest(String header) {
+		createTestStepReportHeader(header);
+	}*/
 	
-	public void createTestStepReportHeader(String fileName) {
-		ReportTestStepHeaderHtml objTestRepHeaderHtml = new ReportTestStepHeaderHtml();
-		String heading = "";
-		if(configurationMap.containsKey("testReportHeading")) {
-			heading = configurationMap.get("testReportHeading"); 
-		}
-		
-		String testHeader = objTestRepHeaderHtml.testStepReportHeaderForAPIAndUi(heading);
-		writeDataInReport(testHeader, fileName);
+	
+	public void endTest(String testCaseName, String description) {
+		logTestCaseDetail("", testCaseName, description);
+		setTestStartTime(CommonUtility.now(dateTimeFormat));
+
 	}
+	
+	/*public void createTestStepReportHeader(String heading) {
+		ReportTestStepHeaderHtml objTestRepHeaderHtml = new ReportTestStepHeaderHtml();
+		String testHeader = objTestRepHeaderHtml.testStepReportHeaderForAPIAndUi(heading);
+		writeDataInReport(testHeader, getFileName());
+	}*/
 	
 	
  	 
@@ -153,18 +162,14 @@ public class ZenXReport
 	 * @param actual
 	 */
 	public void log(String testId, String description, String result, String expected, String actual) {
-		stepEndTime = CommonUtility.now(dateTimeFormat);
-		
 		if(testId.equals("")) {
 			testId = String.valueOf(autoTestId);
 			autoTestId++;
 		}
 		
-		objReportStepsDetails.addStepDetails(testId, description, result,expected,actual, stepStartTime, stepEndTime);
+		objReportStepsDetails.addStepDetails(testId, description, result,expected,actual);
 		
 		totalStepsLst.add(result);
-		
-		stepStartTime  = CommonUtility.now(dateTimeFormat);
 	}
 	
 	/**
@@ -180,8 +185,8 @@ public class ZenXReport
 		
 		String screeshotBase64 = ScreenShot.addScreenshot(screenshotPath);
 		String stepEndTime = CommonUtility.now(dateTimeFormat);
-		objReportStepsDetails.addStepDetails(testId, description, result,expected,actual,  screeshotBase64, stepStartTime, stepEndTime);
-		stepStartTime  = CommonUtility.now(dateTimeFormat);
+		objReportStepsDetails.addStepDetails(testId, description, result,expected,actual,  screeshotBase64);//, stepStartTime, stepEndTime);
+		//stepStartTime  = CommonUtility.now(dateTimeFormat);
 	}
 	
 	/***
@@ -192,10 +197,9 @@ public class ZenXReport
 		 
 		for(int i=0; i< objReportStepsDetails.resultList.size(); i++) {
 			if(!objReportStepsDetails.resultList.get(i).equalsIgnoreCase("")) {
-				String str = objReportTestStepHeaderHtml.createResultRow(objReportStepsDetails.testCaseIdList.get(i),
-						objReportStepsDetails.descriptionList.get(i), 
-						"objReportStepsDetails"," request",
-						"response", "jsonNode",objReportStepsDetails.expectedList.get(i),objReportStepsDetails.actualValueList.get(i),objReportStepsDetails.resultList.get(i));
+				String str = objReportTestStepHeaderHtml.createStepResultRowForWeb(objReportStepsDetails.testCaseIdList.get(i),
+						objReportStepsDetails.descriptionList.get(i),
+						objReportStepsDetails.expectedList.get(i),objReportStepsDetails.actualValueList.get(i),objReportStepsDetails.resultList.get(i));
 				
 				if(objReportStepsDetails.resultList.get(i).equals(ReportConstants.FAIL)) {
 					testCaseLst.add(ReportConstants.FAIL);
@@ -221,20 +225,28 @@ public class ZenXReport
 	 */
 	public void logTestCaseDetail(String testCaseId, String testCaseName, String description) {
 		
+		/*** Create step report html from results ***********/
 		createTestStepReport();
 		
-		String head = objReportTestStepHeaderHtml.testStepReportHeaderForAPIAndUi("heading");
+		/**** Create test summary header and test case data ********************/
+		TestCaseRowHtml objTestCaseRowHtml = new TestCaseRowHtml();
+		setTestEndTime(CommonUtility.now(dateTimeFormat));
+		String summary = objTestCaseRowHtml.createResultRow(testCaseId, testCaseName, description, testCaseLst.get(0), getTestStartTime(), getTestEndTime());
+		writeDataInReport(summary, getFileName());
+		
+		/************* Create test steps header **********************/
+		String head = objReportTestStepHeaderHtml.testStepReportHeaderForWeb(testCaseName);
 		writeDataInReport(head, getFileName());
 		
+		/************* Create test steps details  **********************/
 		writeDataInReport(getTestStepHtml(), getFileName());
 		
+		/************* Create footer of the HTML **********************/
 		String footer = objReportTestStepHeaderHtml.testStepReportFooter();
 		writeDataInReport(footer, getFileName());
 		
  		 
-		TestCaseRowHtml objTestCaseRowHtml = new TestCaseRowHtml();
-		String summary = objTestCaseRowHtml.createResultRow(testCaseId, testCaseName, description, testCaseLst.get(0), testStartTime, testEndTime);
-		writeDataInReport(summary, getFileName());
+
 		
 	}
 	
@@ -254,37 +266,6 @@ public class ZenXReport
 		}
 	}
 	
-
-
-	public void updateEndTime(String endTime) {
-		StringBuffer buf = new StringBuffer();
-		try{
-		    // Open the file that is the first 
-		    // command line parameter
-		    FileInputStream fstream = new FileInputStream(getFileName());
-		    // Get the object of DataInputStream
-		    DataInputStream in = new DataInputStream(fstream);
-		    BufferedReader br = new BufferedReader(new InputStreamReader(in));
-		    String strLine;
-		    
-		    //Read File Line By Line
-		    
-		    while ((strLine = br.readLine()) != null)   {
-		    	
-			     if(strLine.indexOf("END_TIME") !=-1){
-			    	 strLine=strLine.replace("END_TIME", endTime);
-			     }
-		       buf.append(strLine);
-		    }
-		  //Close the input stream
-		    in.close();
-		     
-		    
-		    }catch (Exception e){//Catch exception if any
-		      System.err.println("Error: " + e.getMessage());
-		    }
-		
-	}
 
 	
 	public void endReport() {
@@ -313,9 +294,17 @@ public class ZenXReport
 			String strLine;
 
 			// Read File Line By Line
-
+		
 			while ((strLine = br.readLine()) != null) {
 
+				 if(strLine.indexOf("END_TIME") !=-1){
+			    	 strLine=strLine.replace("END_TIME", CommonUtility.now(dateTimeFormat));
+			     }
+				 
+				if(strLine.indexOf("START_TIME") !=-1){
+			    	 strLine=strLine.replace("START_TIME", getExecutionStartTime());
+			     }
+				
 				if (strLine.indexOf("Total_Pass") != -1) {
 					strLine = strLine.replace("Total_Pass",
 							Integer.toString(pass));
@@ -368,6 +357,59 @@ public class ZenXReport
 	}
 	
 	
+	public void endReport1() {
+		 
+		int fail = Collections.frequency(testCaseLst, ReportConstants.FAIL);
+		int pass  = Collections.frequency(testCaseLst, ReportConstants.PASS);
+		int skip  = Collections.frequency(testCaseLst, ReportConstants.SKIP);
+		
+		
+		int totalFailSteps = Collections.frequency(totalStepsLst, ReportConstants.FAIL);
+		int totalPassSteps  = Collections.frequency(totalStepsLst, ReportConstants.PASS);
+		int totalSkipSteps  = Collections.frequency(totalStepsLst, ReportConstants.SKIP);
+		
+		
+		
+		int totalCount = fail+pass; 
+		
+		StringBuffer buf = new StringBuffer();
+		try {
+			//Open the file that is the first
+			// command line parameter
+			FileInputStream fstream = new FileInputStream(getFileName());
+			// Get the object of DataInputStream
+			DataInputStream in = new DataInputStream(fstream);
+			BufferedReader br = new BufferedReader(new InputStreamReader(in));
+			String strLine;
+
+			// Read File Line By Line
+		
+			String htmlSummary = getReportSummartHtml();
+	    	 htmlSummary+=htmlSummary.replace("END_TIME", CommonUtility.now(dateTimeFormat));
+	    	 htmlSummary+=htmlSummary.replace("START_TIME", getExecutionStartTime());
+	    	 htmlSummary+= htmlSummary.replace("Total_Pass",
+							Integer.toString(pass));
+			 htmlSummary+= htmlSummary.replace("Total_Fail",
+							Integer.toString(fail));
+			 htmlSummary+= htmlSummary.replace("Total_Count",
+							Integer.toString(totalCount));
+			 htmlSummary+= htmlSummary.replace("Total_Skipped",
+							Integer.toString(skip));
+		 	 htmlSummary+= htmlSummary.replace("TotalStepsCount", String.valueOf(totalPassSteps+totalFailSteps+totalSkipSteps));
+			 htmlSummary+= htmlSummary.replace("TotalPassSteps", String.valueOf(totalPassSteps));
+			 htmlSummary+= htmlSummary.replace("TotalFailSteps", String.valueOf(totalFailSteps));
+			 htmlSummary+= htmlSummary.replace("TotalSkipSteps", String.valueOf(totalSkipSteps));
+				int failPer = fail * 100 / totalCount;
+			htmlSummary+= htmlSummary.replace("FAIL_PERCENTAGE",
+							Integer.toString(failPer))+" %";
+			
+		} catch (Exception e) {// Catch exception if any
+			System.err.println("Error: " + e.getMessage());
+		}
+
+	}
+	
+	
 	public String getFileName() {
 		return fileName;
 	}
@@ -377,17 +419,17 @@ public class ZenXReport
 	 
 	
 	 
-	public String getStepStartTime() {
-		return stepStartTime;
+	public String getExecutionStartTime() {
+		return executionStartTime;
 	}
-	public void setStepStartTime(String stepStartTime) {
-		this.stepStartTime = stepStartTime;
+	public void setExecutionStartTime(String stepStartTime) {
+		this.executionStartTime = stepStartTime;
 	}
-	public String getStepEndTime() {
-		return stepEndTime;
+	public String getExecutionEndTime() {
+		return executionEndTime;
 	}
-	public void setStepEndTime(String stepEndTime) {
-		this.stepEndTime = stepEndTime;
+	public void setExecutionEndTime(String stepEndTime) {
+		this.executionEndTime = stepEndTime;
 	}
 	public String getTestStartTime() {
 		return testStartTime;
@@ -406,6 +448,12 @@ public class ZenXReport
 	}
 	public void setTestStepHtml(String testStepHtml) {
 		this.testStepHtml = testStepHtml;
+	}
+	public String getReportSummartHtml() {
+		return reportSummartHtml;
+	}
+	public void setReportSummartHtml(String reportSummartHtml) {
+		this.reportSummartHtml = reportSummartHtml;
 	}
 	
 }

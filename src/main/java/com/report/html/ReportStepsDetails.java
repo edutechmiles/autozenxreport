@@ -17,8 +17,8 @@ public class ReportStepsDetails {
 	public  ArrayList<String> stepEndTimeLst	=	new ArrayList<String>();
 	
 	
-	public void addStepDetails(String testId, String description, String result, String expected, String actual, String screenShot
-			, String stepStartTime, String stepEndTime) {
+	public void addStepDetails(String testId, String description, String result, String expected, String actual, String screenShot) {
+			//, String stepStartTime, String stepEndTime) {
 		
 		testCaseIdList.add(testId);
 		descriptionList.add(description);
@@ -26,13 +26,12 @@ public class ReportStepsDetails {
 		expectedList.add(expected);
 		resultList.add(result);
 		screenShotList.add(screenShot);
-		stepStartTimeLst.add(stepStartTime);
-		stepEndTimeLst.add(stepEndTime);
+		//stepStartTimeLst.add(stepStartTime);
+		//stepEndTimeLst.add(stepEndTime);
 	}
 	
 	
-	public void addStepDetails(String testId, String description, String result, String expected, String actual
-			, String stepStartTime, String stepEndTime) {
+	public void addStepDetails(String testId, String description, String result, String expected, String actual) {
 		//InitClass.now("dd.MMMMM.yyyy hh.mm.ss")
 		
 		testCaseIdList.add(testId);
@@ -40,8 +39,8 @@ public class ReportStepsDetails {
 		actualValueList.add(actual);
 		expectedList.add(expected);
 		resultList.add(result);
-		stepStartTimeLst.add(stepStartTime);
-		stepEndTimeLst.add(stepEndTime);
+		//stepStartTimeLst.add(stepStartTime);
+		//stepEndTimeLst.add(stepEndTime);
 		
 	}
 

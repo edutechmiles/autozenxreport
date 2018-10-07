@@ -3,6 +3,7 @@ package com.tenant.page;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
+import com.report.ReportConstants;
 import com.report.ZenXReport;
 
 public class LoginPage {
@@ -18,15 +19,15 @@ public class LoginPage {
 	
 	public void login(ZenXReport reportUtil) {
 	
-		driver.findElement(By.id("login_uname")).sendKeys("rominder@e2e.ch");
+		//driver.findElement(By.id("login_uname")).sendKeys("rominder@e2e.ch");
 		
-		reportUtil.log("TS-1", "Enter user name", "Pass", "", "");
+		reportUtil.log("TS-1", "Enter user name", ReportConstants.PASS, "", "");
 		
-		driver.findElement(By.id("login_password")).sendKeys("Global@123");
-		reportUtil.log("TS-2", "Enter password", "Pass", "", "");
+		//driver.findElement(By.id("login_password")).sendKeys("Global@123");
+		reportUtil.log("TS-2", "Enter password", ReportConstants.PASS, "", "");
 
-		driver.findElement(By.id("login_submit")).click();
-		reportUtil.log("TS-3", "Submit form", "Pass", "", "");
+		//driver.findElement(By.id("login_submit")).click();
+		reportUtil.log("TS-3", "Submit form", ReportConstants.PASS, "", "");
 		
 		
 	}
