@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+		<reportTitle>Automation report</reportTitle>
+		<reportDescription>Automation report descriptino</reportDescription>
+		<reportLogo></reportLogo>
+		<dateTimeFormat>dd-MMM-yyyy hh:mm:ss</dateTimeFormat>
+		<reportPath>D://Projects/Hilti/HiltiRepository/testRepo</reportPath>
+		
+		<!-- Optional -->
+		<testReportHeading>Extra header line</testReportHeading>
+</configuration>

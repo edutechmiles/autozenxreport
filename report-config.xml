@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TestReprot>
+	<configuration>
+		<releaseVersion>3.1</releaseVersion>
+		<reportTitle></reportTitle>
+		<reportLogo></reportLogo>
+		<timeFormat>HH:mm:ss</timeFormat>
+	</configuration>
+</TestReprot>
