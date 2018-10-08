@@ -43,6 +43,7 @@ public class ZenXReport
 	public String dateTimeFormat = "dd-MMM-yyyy hh:mm:ss" ;
 	public String reportPath ;
 	public static int autoTestId =0;
+	public static int snoTestCase = 0;
 	public String testStepHtml = "" ;
 	public ArrayList<String> totalStepsLst;
 	public ArrayList<String> testCaseLst;
@@ -140,7 +141,9 @@ public class ZenXReport
 	
 	
 	public void endTest(String testCaseName, String description) {
-		logTestCaseDetail("", testCaseName, description);
+		snoTestCase++;
+		
+		logTestCaseDetail(String.valueOf(snoTestCase), testCaseName, description);
 		setTestStartTime(CommonUtility.now(dateTimeFormat));
 
 	}
