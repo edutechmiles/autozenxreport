@@ -4,7 +4,7 @@
 		<reportDescription>Automation report descriptino</reportDescription>
 		<reportLogo></reportLogo>
 		<dateTimeFormat>dd-MMM-yyyy hh:mm:ss</dateTimeFormat>
-		<reportPath>D://Projects/Hilti/HiltiRepository/testRepo</reportPath>
+		<reportPath></reportPath>
 		<ENVIRONMENT>3.0</ENVIRONMENT>
 		
 		<!-- Optional -->
